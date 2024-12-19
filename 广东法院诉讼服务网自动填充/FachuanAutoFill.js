@@ -3,6 +3,7 @@
 // @name:en      Law Tools Box
 // @version      1.0.2
 // @description  自动填写广东法院诉讼服务网账号密码，支持律师和个人账号登录
+// @description:en Null
 // @namespace    https://greasyfork.org/zh-CN/users/1412891-lawyer-ray
 // @author       Kaisa
 // @match        https://ssfw.gdcourts.gov.cn/web/loginA?action=lawyer_login
