@@ -31,5 +31,9 @@
 - 实现基本的自动填充功能
 - 添加账号密码设置面板
 
+### v1.0.3(2024-12-19)
+- 增加了两组账号密码保存功能
+- 账号密码是使用GM_setValue和GM_getValue两组API保存，存储位置是在本地浏览器的Local Storage\leveldb
+
 ## 反馈与支持
 如有问题或建议，请访问 [GitHub Issues](https://github.com/Lawyer-ray/FachuanScript.git/issues) 页面反馈

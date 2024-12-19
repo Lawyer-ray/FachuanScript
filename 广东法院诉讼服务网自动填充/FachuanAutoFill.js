@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         法穿工具箱
 // @name:en      Law Tools Box
-// @version      1.0.2
+// @version      1.0.3
 // @description  自动填写广东法院诉讼服务网账号密码，支持律师和个人账号登录
 // @description:en Null
 // @namespace    https://greasyfork.org/zh-CN/users/1412891-lawyer-ray
@@ -76,6 +76,27 @@
         .close-button:hover {
             color: #333;
         }
+        .account-group {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        .account-group h5 {
+            margin: 0 0 10px 0;
+        }
+        .switch-button {
+            margin-right: 5px;
+            padding: 5px 10px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .switch-button:hover {
+            background: #1976D2;
+        }
     `);
 
     // 创建设置面板
@@ -87,42 +108,70 @@
                 <h4 style="margin: 0;">登录信息设置</h4>
                 <span class="close-button" title="关闭面板">×</span>
             </div>
-            <input type="text" id="username-setting" placeholder="账号" value="${GM_getValue('username', '')}">
-            <br>
-            <div class="password-container">
-                <input type="password" id="password-setting" placeholder="密码" value="${GM_getValue('password', '')}">
-                <span class="toggle-password" title="显示/隐藏密码">👁️</span>
+            <div class="account-group">
+                <h5>账号1</h5>
+                <input type="text" id="username1-setting" placeholder="账号1" value="${GM_getValue('username1', '')}">
+                <br>
+                <div class="password-container">
+                    <input type="password" id="password1-setting" placeholder="密码1" value="${GM_getValue('password1', '')}">
+                    <span class="toggle-password" title="显示/隐藏密码">👁️</span>
+                </div>
             </div>
-            <br>
+            <div class="account-group">
+                <h5>��号2</h5>
+                <input type="text" id="username2-setting" placeholder="账号2" value="${GM_getValue('username2', '')}">
+                <br>
+                <div class="password-container">
+                    <input type="password" id="password2-setting" placeholder="密码2" value="${GM_getValue('password2', '')}">
+                    <span class="toggle-password" title="显示/隐藏密码">👁️</span>
+                </div>
+            </div>
+            <button class="switch-button" id="switch-account1">使用账号1</button>
+            <button class="switch-button" id="switch-account2">使用账号2</button>
             <button id="save-settings">保存设置</button>
         `;
         document.body.appendChild(panel);
 
-        // 添加关闭按钮事件监听
+        // 关闭按钮事件
         const closeButton = panel.querySelector('.close-button');
-        closeButton.addEventListener('click', function() {
-            panel.style.display = 'none';
-        });
+        closeButton.addEventListener('click', () => panel.style.display = 'none');
 
         // 显示/隐藏密码功能
-        const togglePassword = panel.querySelector('.toggle-password');
-        const passwordInput = document.getElementById('password-setting');
-
-        togglePassword.addEventListener('click', function() {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
+        const toggleButtons = panel.querySelectorAll('.toggle-password');
+        toggleButtons.forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const passwordInput = this.previousElementSibling;
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+            });
         });
 
-        // 保存设置按钮点击事件
-        document.getElementById('save-settings').addEventListener('click', function() {
-            const username = document.getElementById('username-setting').value;
-            const password = document.getElementById('password-setting').value;
-            GM_setValue('username', username);
-            GM_setValue('password', password);
-            alert('设置已保存！');
-
-            // 立即填充表单
+        // 切换账号按钮事件
+        document.getElementById('switch-account1').addEventListener('click', function() {
+            const username = GM_getValue('username1', '');
+            const password = GM_getValue('password1', '');
             fillForm(username, password);
+        });
+
+        document.getElementById('switch-account2').addEventListener('click', function() {
+            const username = GM_getValue('username2', '');
+            const password = GM_getValue('password2', '');
+            fillForm(username, password);
+        });
+
+        // 保存设置按钮事件
+        document.getElementById('save-settings').addEventListener('click', function() {
+            const username1 = document.getElementById('username1-setting').value;
+            const password1 = document.getElementById('password1-setting').value;
+            const username2 = document.getElementById('username2-setting').value;
+            const password2 = document.getElementById('password2-setting').value;
+
+            GM_setValue('username1', username1);
+            GM_setValue('password1', password1);
+            GM_setValue('username2', username2);
+            GM_setValue('password2', password2);
+
+            alert('设置已保存！');
         });
     }
 
@@ -148,16 +197,25 @@
         }
 
         if (usernameInput && passwordInput) {
-            // 填充用户名
-            usernameInput.value = username;
+            // 先清空输入框的值
+            usernameInput.value = '';
+            passwordInput.value = '';
             triggerInputEvent(usernameInput);
-
-            // 填充密码
-            passwordInput.value = password;
             triggerInputEvent(passwordInput);
 
-            // 确保密码字段保持type="password"
-            passwordInput.setAttribute('type', 'password');
+            // 使用 setTimeout 确保清空操作完成后再填充
+            setTimeout(() => {
+                // 填充用户名
+                usernameInput.value = username;
+                triggerInputEvent(usernameInput);
+
+                // 填充密码
+                passwordInput.value = password;
+                triggerInputEvent(passwordInput);
+
+                // 确保密码字段保持type="password"
+                passwordInput.setAttribute('type', 'password');
+            }, 50);
         }
     }
 
@@ -169,8 +227,8 @@
             createSettingsPanel();
 
             // 获取保存的账号密码
-            const username = GM_getValue('username', '');
-            const password = GM_getValue('password', '');
+            const username = GM_getValue('username1', '');
+            const password = GM_getValue('password1', '');
 
             // 如果有保存的账号密码，自动填充
             if (username && password) {
