@@ -1,11 +1,13 @@
 // ==UserScript==
 // @name         法穿工具箱
 // @name:en      Law Tools Box
-// @version      1.0.0
+// @version      1.0.2
 // @description  自动填写广东法院诉讼服务网账号密码，支持律师和个人账号登录
 // @namespace    https://greasyfork.org/zh-CN/users/1412891-lawyer-ray
 // @author       Kaisa
 // @match        https://ssfw.gdcourts.gov.cn/web/loginA?action=lawyer_login
+// @match        https://ssfw.gdcourts.gov.cn/web/loginA
+// @match        https://ssfw.gdcourts.gov.cn/web/loginA?action=uc&identification=0
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_addStyle
@@ -57,6 +59,22 @@
             user-select: none;
             color: #666;
         }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .close-button {
+            cursor: pointer;
+            color: #666;
+            font-size: 18px;
+            padding: 5px;
+            line-height: 1;
+        }
+        .close-button:hover {
+            color: #333;
+        }
     `);
 
     // 创建设置面板
@@ -64,7 +82,10 @@
         const panel = document.createElement('div');
         panel.className = 'settings-panel';
         panel.innerHTML = `
-            <h4>登录信息设置</h4>
+            <div class="panel-header">
+                <h4 style="margin: 0;">登录信息设置</h4>
+                <span class="close-button" title="关闭面板">×</span>
+            </div>
             <input type="text" id="username-setting" placeholder="账号" value="${GM_getValue('username', '')}">
             <br>
             <div class="password-container">
@@ -75,6 +96,12 @@
             <button id="save-settings">保存设置</button>
         `;
         document.body.appendChild(panel);
+
+        // 添加关闭按钮事件监听
+        const closeButton = panel.querySelector('.close-button');
+        closeButton.addEventListener('click', function() {
+            panel.style.display = 'none';
+        });
 
         // 显示/隐藏密码功能
         const togglePassword = panel.querySelector('.toggle-password');
@@ -109,8 +136,15 @@
 
     // 填充表单函数
     function fillForm(username, password) {
-        const usernameInput = document.evaluate('//*[@id="login_lawyer_name"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-        const passwordInput = document.evaluate('//*[@id="login_lawyer_psw"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        // 尝试获取律师登录页面的输入框
+        let usernameInput = document.evaluate('//*[@id="login_lawyer_name"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        let passwordInput = document.evaluate('//*[@id="login_lawyer_psw"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+        // 如果没有找到律师登录页面的输入框，尝试获取普通登录页面的输入框
+        if (!usernameInput || !passwordInput) {
+            usernameInput = document.evaluate('//*[@id="login_user_name"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            passwordInput = document.evaluate('//*[@id="psw"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        }
 
         if (usernameInput && passwordInput) {
             // 填充用户名
