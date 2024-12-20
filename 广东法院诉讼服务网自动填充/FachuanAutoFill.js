@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         法穿工具箱
 // @name:en      Law Tools Box
-// @version      1.0.4
+// @version      1.0.5
 // @description  自动填写广东法院诉讼服务网账号密码，支持律师和个人账号登录
 // @description:en Null
 // @namespace    https://greasyfork.org/zh-CN/users/1412891-lawyer-ray
@@ -88,14 +88,69 @@
         .switch-button {
             margin-right: 5px;
             padding: 5px 10px;
-            background: #2196F3;
             color: white;
             border: none;
             border-radius: 3px;
             cursor: pointer;
         }
-        .switch-button:hover {
+        #switch-account1 {
+            background: #2196F3;  /* 蓝色 */
+        }
+        #switch-account1:hover {
             background: #1976D2;
+        }
+        #switch-account2 {
+            background: #FF9800;  /* 橙色 */
+        }
+        #switch-account2:hover {
+            background: #F57C00;
+        }
+        #save-settings {
+            background: #4CAF50;  /* 绿色 */
+            width: 100%;         /* 保存按钮占满宽度 */
+            margin-top: 10px;    /* 与上方按钮保持间距 */
+        }
+        #save-settings:hover {
+            background: #45a049;
+        }
+        .switch-buttons-container {
+            display: flex;
+            gap: 10px;  /* 两个按钮之间的间距 */
+            margin-bottom: 10px;
+        }
+        .switch-button {
+            flex: 1;  /* 让两个切换按钮平分宽度 */
+            padding: 8px 0;  /* 调整按钮高度 */
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #switch-account1 {
+            background: #2196F3;  /* 蓝色 */
+        }
+        #switch-account1:hover {
+            background: #1976D2;
+        }
+        #switch-account2 {
+            background: #FF9800;  /* 橙色 */
+        }
+        #switch-account2:hover {
+            background: #F57C00;
+        }
+        #save-settings {
+            width: 100%;
+            padding: 8px 0;  /* 与切换按钮相同的高度 */
+            background: #4CAF50;  /* 绿色 */
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #save-settings:hover {
+            background: #45a049;
         }
     `);
 
@@ -126,8 +181,10 @@
                     <span class="toggle-password" title="显示/隐藏密码">👁️</span>
                 </div>
             </div>
-            <button class="switch-button" id="switch-account1">使用账号1</button>
-            <button class="switch-button" id="switch-account2">使用账号2</button>
+            <div class="switch-buttons-container">
+                <button class="switch-button" id="switch-account1">使用账号1</button>
+                <button class="switch-button" id="switch-account2">使用账号2</button>
+            </div>
             <button id="save-settings">保存设置</button>
         `;
         document.body.appendChild(panel);
@@ -159,7 +216,7 @@
             fillForm(username, password);
         });
 
-        // 保存设置按钮事件
+        // 保存���置按钮事件
         document.getElementById('save-settings').addEventListener('click', function() {
             const username1 = document.getElementById('username1-setting').value;
             const password1 = document.getElementById('password1-setting').value;
